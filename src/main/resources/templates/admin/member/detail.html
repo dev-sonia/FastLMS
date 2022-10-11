@@ -8,6 +8,13 @@
             width: 100%;
             border-collapse: collapse;
         }
+
+        .history table {
+            text-align: center;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
         .detail table th, .detail table td {
             border:solid 1px #000;
         }
@@ -17,7 +24,6 @@
 <body>
     <div th:replace="/fragments/layout.html :: fragment-admin-body-menu"></div>
     <h1>관리자 회원 관리 - 회원 상세 정보</h1>
-
 
     <div class="detail" >
 
@@ -98,10 +104,30 @@
 
         <div>
             <a href="list.do"> 목록 </a>
-
         </div>
 
+        <div class="history">
+            <div style="font-weight: bold">가장 최근 로그인 기록 (5개)</div>
+            <table>
+                <thead>
+                <tr>
+                    <th>NO</th>
+                    <th>로그인 일자</th>
+                    <th>접속 IP</th>
+                    <th>접속 UserAgent</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="x : ${list}">
+                    <td th:text="${x.seq}"></td>
+                    <td th:text="${#temporals.format(x.loginDt, 'yyyy.MM.dd HH:mm')}">2022.02.02</td>
+                    <td th:text="${x.clientIp}"></td>
+                    <td th:text="${x.userAgent}"></td>
+                </tr>
+                </tbody>
+            </table>
 
+        </div>
     </div>
 
 

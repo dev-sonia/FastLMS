@@ -2,12 +2,17 @@ package com.zerobase.fastlms.admin.controller;
 
 
 import com.zerobase.fastlms.admin.dto.MemberDto;
+import com.zerobase.fastlms.admin.dto.MemberLoginHistoryDto;
+import com.zerobase.fastlms.admin.entity.MemberLoginHistory;
 import com.zerobase.fastlms.admin.model.MemberParam;
 import com.zerobase.fastlms.admin.model.MemberInput;
 import com.zerobase.fastlms.course.controller.BaseController;
 import com.zerobase.fastlms.member.service.MemberService;
 import com.zerobase.fastlms.util.PageUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,12 +47,14 @@ public class AdminMemberController extends BaseController {
     }
     
     @GetMapping("/admin/member/detail.do")
-    public String detail(Model model, MemberParam parameter) {
+    public String detail(Model model, MemberParam parameter, @PageableDefault(size = 5, sort="id", direction = Sort.Direction.DESC) Pageable pageable) {
         
         parameter.init();
         
         MemberDto member = memberService.detail(parameter.getUserId());
+        List<MemberLoginHistoryDto> list = memberService.listLogIn(parameter.getUserId(), pageable);
         model.addAttribute("member", member);
+        model.addAttribute("list", list);
        
         return "admin/member/detail";
     }

@@ -1,8 +1,11 @@
 package com.zerobase.fastlms.member.service.impl;
 
 import com.zerobase.fastlms.admin.dto.MemberDto;
+import com.zerobase.fastlms.admin.dto.MemberLoginHistoryDto;
+import com.zerobase.fastlms.admin.entity.MemberLoginHistory;
 import com.zerobase.fastlms.admin.mapper.MemberMapper;
 import com.zerobase.fastlms.admin.model.MemberParam;
+import com.zerobase.fastlms.admin.repository.MemberLoginHistoryRepository;
 import com.zerobase.fastlms.components.MailComponents;
 import com.zerobase.fastlms.course.model.ServiceResult;
 import com.zerobase.fastlms.member.entity.Member;
@@ -15,6 +18,7 @@ import com.zerobase.fastlms.member.repository.MemberRepository;
 import com.zerobase.fastlms.member.service.MemberService;
 import com.zerobase.fastlms.util.PasswordUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -24,7 +28,6 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +39,9 @@ import java.util.UUID;
 public class MemberServiceImpl implements MemberService {
     
     private final MemberRepository memberRepository;
+
+    private final MemberLoginHistoryRepository loginHistoryRepository;
+
     private final MailComponents mailComponents;
     
     private final MemberMapper memberMapper;
@@ -153,7 +159,7 @@ public class MemberServiceImpl implements MemberService {
         }
         
         Member member = optionalMember.get();
-        
+
         return MemberDto.of(member);
     }
     
@@ -268,7 +274,31 @@ public class MemberServiceImpl implements MemberService {
         
         return new ServiceResult();
     }
-    
+
+    @Override
+    public List<MemberLoginHistoryDto> listLogIn(String userId, Pageable pageable) {
+
+        List<MemberLoginHistoryDto> historyDtoList = new ArrayList<>();
+        List<MemberLoginHistory> lists = loginHistoryRepository.findByUserId(userId, pageable);
+
+        if (!CollectionUtils.isEmpty(lists)) {
+            int i = 5;
+
+            for(MemberLoginHistory m: lists){
+                historyDtoList.add(MemberLoginHistoryDto.of(m));
+            }
+
+            for(MemberLoginHistoryDto x : historyDtoList) {
+
+                x.setSeq(i);
+                i--;
+
+            }
+        }
+
+        return historyDtoList;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -278,7 +308,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         Member member = optionalMember.get();
-        
+
         if (Member.MEMBER_STATUS_REQ.equals(member.getUserStatus())) {
             throw new MemberNotEmailAuthException("이메일 활성화 이후에 로그인을 해주세요.");
         }

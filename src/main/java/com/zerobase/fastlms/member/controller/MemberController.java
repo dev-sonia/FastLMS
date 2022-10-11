@@ -9,6 +9,7 @@ import com.zerobase.fastlms.member.model.MemberInput;
 import com.zerobase.fastlms.member.model.ResetPasswordInput;
 import com.zerobase.fastlms.member.service.MemberService;
 import com.zerobase.fastlms.util.PasswordUtils;
+import com.zerobase.fastlms.util.RequestUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
 
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+
 @RequiredArgsConstructor
 @Controller
 public class MemberController {
@@ -28,7 +31,13 @@ public class MemberController {
     private final TakeCourseService takeCourseService;
     
     @RequestMapping("/member/login")
-    public String login() {
+    public String login(HttpServletRequest request) {
+
+        String userAgent = RequestUtils.getUserAgent(request); // 접속 UserAgent
+        String clientIp = RequestUtils.getClientIP(request); // Client IP
+
+        log.println(userAgent);
+        log.println(clientIp);
         
         return "member/login";
     }
